@@ -61,6 +61,33 @@ tasks.register('testProducts', Test) {
     systemProperty 'cucumber.filter.tags', '@products'
 }
 
+tasks.register('testCart', Test) {
+    description = 'Runs cart tests (@cart)'
+    group = 'verification'
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'cucumber.filter.tags', '@cart'
+}
+
+tasks.register('testLogin', Test) {
+    description = 'Runs login tests (@login) excluding negatives'
+    group = 'verification'
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'cucumber.filter.tags', '@login and not @negative'
+}
+
+tasks.register('testLoginNegative', Test) {
+    description = 'Runs negative login tests (@negative)'
+    group = 'verification'
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'cucumber.filter.tags', '@negative'
+}
+
 tasks.register('testMenu', Test) {
     description = 'Runs menu tests (@menu)'
     group = 'verification'
@@ -77,6 +104,13 @@ tasks.register('testRegression', Test) {
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
     systemProperty 'cucumber.filter.tags', '@regression'
+}
+
+tasks.register('testAllAggregate') {
+    description = 'Runs all tests and generates Serenity report'
+    group = 'verification'
+    dependsOn 'test'
+    finalizedBy 'aggregate'
 }
 
 tasks.register('testSmokeAggregate') {

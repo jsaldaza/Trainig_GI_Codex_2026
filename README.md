@@ -80,6 +80,21 @@ Each line maps to a Step Definition that calls a **Task** or a **Question**.
 .\gradlew.bat testRegression
 ```
 
+### Only cart:
+```
+.\gradlew.bat testCart
+```
+
+### Only login:
+```
+.\gradlew.bat testLogin
+```
+
+### Only negative login:
+```
+.\gradlew.bat testLoginNegative
+```
+
 ### Only menu:
 ```
 .\gradlew.bat testMenu
@@ -97,6 +112,11 @@ Each line maps to a Step Definition that calls a **Task** or a **Question**.
 Report path:
 ```
 target/site/serenity/index.html
+```
+
+### All tests + Serenity report:
+```
+.\gradlew.bat testAllAggregate
 ```
 
 ---
@@ -205,4 +225,3 @@ If you want, I can keep guiding you with exercises:
 - Add a new test step by step
 - Add stronger validations
 - Build a basic CI pipeline
-
