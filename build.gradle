@@ -1,0 +1,110 @@
+plugins {
+    id 'java'
+    id 'net.serenity-bdd.serenity-gradle-plugin' version '5.0.4'
+}
+
+group = 'co.com.training_GI'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    serenityVersion = '5.0.4'
+    cucumberVersion = '7.33.0'
+    junitBomVersion = '5.13.0'
+}
+
+dependencies {
+    testImplementation platform("org.junit:junit-bom:${junitBomVersion}")
+
+    testImplementation "net.serenity-bdd:serenity-core:${serenityVersion}"
+    testImplementation "net.serenity-bdd:serenity-cucumber:${serenityVersion}"
+    testImplementation "net.serenity-bdd:serenity-screenplay:${serenityVersion}"
+    testImplementation "net.serenity-bdd:serenity-screenplay-webdriver:${serenityVersion}"
+    testImplementation "net.serenity-bdd:serenity-ensure:${serenityVersion}"
+
+    testImplementation "io.cucumber:cucumber-java:${cucumberVersion}"
+    testImplementation "io.cucumber:cucumber-junit-platform-engine:${cucumberVersion}"
+
+    testImplementation "org.junit.platform:junit-platform-suite"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    testImplementation "junit:junit:4.13.2"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.register('testSmoke', Test) {
+    description = 'Runs smoke tests (@smoke)'
+    group = 'verification'
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'cucumber.filter.tags', '@smoke'
+}
+
+tasks.register('testProducts', Test) {
+    description = 'Runs products tests (@products)'
+    group = 'verification'
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'cucumber.filter.tags', '@products'
+}
+
+tasks.register('testMenu', Test) {
+    description = 'Runs menu tests (@menu)'
+    group = 'verification'
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'cucumber.filter.tags', '@menu'
+}
+
+tasks.register('testRegression', Test) {
+    description = 'Runs regression tests (@regression)'
+    group = 'verification'
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'cucumber.filter.tags', '@regression'
+}
+
+tasks.register('testSmokeAggregate') {
+    description = 'Runs smoke tests and generates Serenity report'
+    group = 'verification'
+    dependsOn 'testSmoke'
+    finalizedBy 'aggregate'
+}
+
+tasks.register('testRegressionAggregate') {
+    description = 'Runs regression tests and generates Serenity report'
+    group = 'verification'
+    dependsOn 'testRegression'
+    finalizedBy 'aggregate'
+}
+
+tasks.register('testDaily', Test) {
+    description = 'Runs daily suite (@products or @menu)'
+    group = 'verification'
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperty 'cucumber.filter.tags', '@products or @menu'
+}
+
+tasks.register('testDailyAggregate') {
+    description = 'Runs daily suite and generates Serenity report'
+    group = 'verification'
+    dependsOn 'testDaily'
+    finalizedBy 'aggregate'
+}
