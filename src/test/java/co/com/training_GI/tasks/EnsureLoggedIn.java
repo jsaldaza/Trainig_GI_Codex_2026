@@ -1,5 +1,6 @@
 package co.com.training_GI.tasks;
 
+import co.com.training_GI.support.AppConfig;
 import co.com.training_GI.support.Credentials;
 import co.com.training_GI.support.SessionStore;
 import co.com.training_GI.ui.LoginPage;
@@ -38,18 +39,20 @@ public class EnsureLoggedIn implements Task {
     public void performAs(Actor actor) {
         WebDriver driver = BrowseTheWeb.as(actor).getDriver();
 
-        if (SessionStore.hasCookies()) {
-            driver.navigate().to("https://www.saucedemo.com");
-            for (Cookie cookie : SessionStore.getCookies()) {
-                driver.manage().addCookie(cookie);
-            }
-            driver.navigate().to("https://www.saucedemo.com/inventory.html");
-            try {
-                actor.attemptsTo(WaitUntil.the(ProductsPage.TITLE, isVisible())
-                        .forNoMoreThan(Duration.ofSeconds(5)));
-                return;
-            } catch (RuntimeException ignored) {
-                // If cookies are stale, fall back to UI login.
+        if (AppConfig.sessionReuse()) {
+            if (SessionStore.hasCookies()) {
+                driver.navigate().to(AppConfig.baseUrl());
+                for (Cookie cookie : SessionStore.getCookies()) {
+                    driver.manage().addCookie(cookie);
+                }
+                driver.navigate().to(AppConfig.baseUrl() + "/inventory.html");
+                try {
+                    actor.attemptsTo(WaitUntil.the(ProductsPage.TITLE, isVisible())
+                            .forNoMoreThan(Duration.ofSeconds(5)));
+                    return;
+                } catch (RuntimeException ignored) {
+                    // If cookies are stale, fall back to UI login.
+                }
             }
         }
 
@@ -59,7 +62,9 @@ public class EnsureLoggedIn implements Task {
                 WaitUntil.the(ProductsPage.TITLE, isVisible())
                         .forNoMoreThan(Duration.ofSeconds(10))
         );
-        Set<Cookie> cookies = driver.manage().getCookies();
-        SessionStore.saveCookies(cookies);
+        if (AppConfig.sessionReuse()) {
+            Set<Cookie> cookies = driver.manage().getCookies();
+            SessionStore.saveCookies(cookies);
+        }
     }
 }

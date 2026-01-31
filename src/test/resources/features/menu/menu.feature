@@ -25,7 +25,6 @@ Feature: Menu
 
   Scenario: Reset App State clears the cart
     When the user adds the product "Sauce Labs Backpack" to the cart
-    And the user opens the menu
-    And the user selects the menu option "Reset App State"
+    And the user resets the app state
     And the user opens the cart
     Then the cart should be empty

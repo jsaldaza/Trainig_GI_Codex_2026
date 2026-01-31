@@ -7,6 +7,6 @@ public class SuiteHooks {
 
     @AfterAll
     public static void cleanSession() {
-        SessionStore.saveCookies(java.util.Collections.emptySet());
+        SessionStore.clear();
     }
 }

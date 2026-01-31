@@ -1,8 +1,8 @@
 package co.com.training_GI.questions;
 
+import co.com.training_GI.ui.CartPage;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.Question;
-import net.serenitybdd.screenplay.targets.Target;
 
 public class CartHasProduct implements Question<Boolean> {
 
@@ -18,10 +18,6 @@ public class CartHasProduct implements Question<Boolean> {
 
     @Override
     public Boolean answeredBy(Actor actor) {
-        Target item = Target.the("cart item " + productName)
-                .locatedBy("//div[contains(@class,'cart_item')]" +
-                        "//div[contains(@class,'inventory_item_name') and normalize-space()='{0}']")
-                .of(productName);
-        return !item.resolveAllFor(actor).isEmpty();
+        return !CartPage.cartItemName(productName).resolveAllFor(actor).isEmpty();
     }
 }

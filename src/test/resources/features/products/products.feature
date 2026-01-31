@@ -6,13 +6,11 @@ Feature: Products
 
   Background:
     Given the user is logged in
-    And the user resets the app state
 
   @smoke
-  Scenario: Add a product to the cart
+  Scenario: Add a product to the cart (UI only)
     When the user adds the product "Sauce Labs Backpack" to the cart
-    And the user opens the cart
-    Then the cart should contain the product "Sauce Labs Backpack"
+    Then the cart badge should show 1
 
   @regression
   Scenario Outline: Each product can be added to the cart

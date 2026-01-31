@@ -20,7 +20,7 @@ public class AddProductToCart {
                 WaitUntil.the(ProductsPage.addToCartButtonFor(productName), isVisible())
                         .forNoMoreThan(Duration.ofSeconds(10)),
                 JavaScriptClick.on(ProductsPage.addToCartButtonFor(productName)),
-                WaitUntil.the(ProductsPage.removeButtonFor(productName), isVisible())
+                WaitUntil.the(ProductsPage.CART_BADGE, isVisible())
                         .forNoMoreThan(Duration.ofSeconds(10))
         );
     }

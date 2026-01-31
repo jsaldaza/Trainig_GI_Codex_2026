@@ -9,7 +9,7 @@ import org.junit.platform.suite.api.Suite;
 @Suite
 @IncludeEngines("cucumber")
 @SelectClasspathResource("features")
-@ConfigurationParameter(key = Constants.GLUE_PROPERTY_NAME, value = "co.com.training_GI.stepdefinitions")
+@ConfigurationParameter(key = Constants.GLUE_PROPERTY_NAME, value = "co.com.training_GI")
 @ConfigurationParameter(key = Constants.PLUGIN_PROPERTY_NAME, value = "net.serenitybdd.cucumber.core.plugin.SerenityReporter")
 public class CucumberTestSuite {
 }

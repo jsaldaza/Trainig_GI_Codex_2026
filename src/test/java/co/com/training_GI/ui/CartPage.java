@@ -18,6 +18,13 @@ public class CartPage {
                 .of(productName);
     }
 
+    public static Target cartItemName(String productName) {
+        return Target.the("cart item " + productName)
+                .locatedBy("//div[contains(@class,'cart_item')]" +
+                        "//div[contains(@class,'inventory_item_name') and normalize-space()='{0}']")
+                .of(productName);
+    }
+
     public static final Target CONTINUE_SHOPPING = Target.the("continue shopping button")
             .locatedBy("#continue-shopping");
 }

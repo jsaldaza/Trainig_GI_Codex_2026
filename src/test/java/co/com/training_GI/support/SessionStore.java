@@ -7,20 +7,26 @@ import org.openqa.selenium.Cookie;
 
 public class SessionStore {
 
-    private static Set<Cookie> cookies = Collections.emptySet();
+    private static final ThreadLocal<Set<Cookie>> COOKIES =
+            ThreadLocal.withInitial(Collections::emptySet);
 
     private SessionStore() {
     }
 
     public static boolean hasCookies() {
+        Set<Cookie> cookies = COOKIES.get();
         return cookies != null && !cookies.isEmpty();
     }
 
     public static Set<Cookie> getCookies() {
-        return cookies;
+        return COOKIES.get();
     }
 
     public static void saveCookies(Set<Cookie> newCookies) {
-        cookies = new HashSet<>(newCookies);
+        COOKIES.set(new HashSet<>(newCookies));
+    }
+
+    public static void clear() {
+        COOKIES.set(Collections.emptySet());
     }
 }

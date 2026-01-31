@@ -10,12 +10,17 @@ public class BrowserHooks {
 
     @Before(order = 0)
     public void selectRandomBrowser() {
-        List<String> browsers = List.of("chrome", "edge", "firefox");
         String configured = System.getProperty("webdriver.driver");
+        boolean randomEnabled = Boolean.parseBoolean(System.getProperty("random.browser", "false"));
         if (selectedBrowser == null) {
-            selectedBrowser = configured == null || configured.isBlank()
-                    ? browsers.get(ThreadLocalRandom.current().nextInt(browsers.size()))
-                    : configured;
+            if (configured != null && !configured.isBlank()) {
+                selectedBrowser = configured;
+            } else if (randomEnabled) {
+                List<String> browsers = List.of("chrome", "edge", "firefox");
+                selectedBrowser = browsers.get(ThreadLocalRandom.current().nextInt(browsers.size()));
+            } else {
+                selectedBrowser = "chrome";
+            }
         }
         System.setProperty("webdriver.driver", selectedBrowser);
         System.out.println("Running tests on browser: " + selectedBrowser);

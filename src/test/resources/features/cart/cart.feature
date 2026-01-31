@@ -6,7 +6,6 @@ Feature: Cart
 
   Background:
     Given the user is logged in
-    And the user resets the app state
 
   Scenario: Add multiple products updates the cart badge and list
     When the user adds the product "Sauce Labs Backpack" to the cart

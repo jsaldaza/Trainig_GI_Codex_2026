@@ -6,7 +6,6 @@ Feature: Product details
 
   Background:
     Given the user is logged in
-    And the user resets the app state
 
   Scenario: Add product to cart from details page
     When the user opens product details for "Sauce Labs Backpack"
