@@ -2,9 +2,9 @@ package co.com.training_GI.tasks;
 
 import co.com.training_GI.ui.ProductsPage;
 import net.serenitybdd.screenplay.Task;
-import net.serenitybdd.screenplay.actions.JavaScriptClick;
 import net.serenitybdd.screenplay.waits.WaitUntil;
 import java.time.Duration;
+import co.com.training_GI.interactions.ClickSafely;
 
 import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isVisible;
 
@@ -19,7 +19,7 @@ public class AddProductToCart {
                         .forNoMoreThan(Duration.ofSeconds(10)),
                 WaitUntil.the(ProductsPage.addToCartButtonFor(productName), isVisible())
                         .forNoMoreThan(Duration.ofSeconds(10)),
-                JavaScriptClick.on(ProductsPage.addToCartButtonFor(productName)),
+                ClickSafely.on(ProductsPage.addToCartButtonFor(productName)),
                 WaitUntil.the(ProductsPage.CART_BADGE, isVisible())
                         .forNoMoreThan(Duration.ofSeconds(10))
         );
