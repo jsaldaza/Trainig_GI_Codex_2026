@@ -1,6 +1,6 @@
 package co.com.training_GI.questions;
 
-import co.com.training_GI.ui.CartPage;
+import co.com.training_GI.support.CartState;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.Question;
 
@@ -18,6 +18,6 @@ public class CartHasProduct implements Question<Boolean> {
 
     @Override
     public Boolean answeredBy(Actor actor) {
-        return !CartPage.cartItemName(productName).resolveAllFor(actor).isEmpty();
+        return CartState.hasProduct(actor, productName);
     }
 }

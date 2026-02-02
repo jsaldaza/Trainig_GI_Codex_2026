@@ -4,6 +4,8 @@ import co.com.training_GI.questions.CartBadgeCount;
 import co.com.training_GI.questions.CartHasProduct;
 import co.com.training_GI.questions.CartIsEmpty;
 import co.com.training_GI.questions.CartItemCount;
+import co.com.training_GI.support.ProductItem;
+import co.com.training_GI.support.Timeouts;
 import co.com.training_GI.tasks.ContinueShopping;
 import co.com.training_GI.tasks.OpenCart;
 import co.com.training_GI.tasks.RemoveProductFromCart;
@@ -11,7 +13,6 @@ import co.com.training_GI.ui.ProductsPage;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import net.serenitybdd.screenplay.waits.WaitUntil;
-import java.time.Duration;
 
 import static net.serenitybdd.screenplay.GivenWhenThen.seeThat;
 import static net.serenitybdd.screenplay.actors.OnStage.theActorInTheSpotlight;
@@ -28,7 +29,7 @@ public class CartStepDefinitions {
 
     @When("the user removes the product {string} from the cart")
     public void theUserRemovesTheProductFromTheCart(String productName) {
-        theActorInTheSpotlight().attemptsTo(RemoveProductFromCart.named(productName));
+        theActorInTheSpotlight().attemptsTo(RemoveProductFromCart.named(canonicalProductName(productName)));
     }
 
     @When("the user continues shopping")
@@ -38,7 +39,7 @@ public class CartStepDefinitions {
 
     @Then("the cart should contain the product {string}")
     public void theCartShouldContainTheProduct(String productName) {
-        theActorInTheSpotlight().should(seeThat(CartHasProduct.named(productName), is(true)));
+        theActorInTheSpotlight().should(seeThat(CartHasProduct.named(canonicalProductName(productName)), is(true)));
     }
 
     @Then("the cart badge should show {int}")
@@ -46,12 +47,12 @@ public class CartStepDefinitions {
         if (expected > 0) {
             theActorInTheSpotlight().attemptsTo(
                     WaitUntil.the(ProductsPage.CART_BADGE, isVisible())
-                            .forNoMoreThan(Duration.ofSeconds(10))
+                            .forNoMoreThan(Timeouts.LONG)
             );
         } else {
             theActorInTheSpotlight().attemptsTo(
                     WaitUntil.the(ProductsPage.CART_BADGE, isNotPresent())
-                            .forNoMoreThan(Duration.ofSeconds(10))
+                            .forNoMoreThan(Timeouts.LONG)
             );
         }
         theActorInTheSpotlight().should(seeThat(CartBadgeCount.value(), is(expected)));
@@ -65,5 +66,10 @@ public class CartStepDefinitions {
     @Then("the cart should be empty")
     public void theCartShouldBeEmpty() {
         theActorInTheSpotlight().should(seeThat(CartIsEmpty.value(), is(true)));
+    }
+
+    private String canonicalProductName(String productName) {
+        ProductItem item = ProductItem.fromName(productName);
+        return item == null ? productName : item.label();
     }
 }

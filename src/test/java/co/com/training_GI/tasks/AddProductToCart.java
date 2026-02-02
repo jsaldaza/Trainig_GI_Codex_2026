@@ -2,19 +2,16 @@ package co.com.training_GI.tasks;
 
 import co.com.training_GI.interactions.ClickSafely;
 import co.com.training_GI.questions.CartBadgeCount;
+import co.com.training_GI.support.CartStorage;
+import co.com.training_GI.support.ProductItem;
+import co.com.training_GI.support.Timeouts;
+import co.com.training_GI.support.Waits;
 import co.com.training_GI.ui.ProductsPage;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.Task;
 import net.serenitybdd.screenplay.Tasks;
-import net.serenitybdd.screenplay.abilities.BrowseTheWeb;
 import net.serenitybdd.screenplay.actions.Scroll;
 import net.serenitybdd.screenplay.waits.WaitUntil;
-import java.time.Duration;
-import java.util.Map;
-import java.util.function.Supplier;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isClickable;
 import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isVisible;
@@ -22,14 +19,6 @@ import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isVisi
 public class AddProductToCart implements Task {
 
     private final String productName;
-    private static final Map<String, Integer> PRODUCT_IDS = Map.of(
-            "Sauce Labs Bike Light", 0,
-            "Sauce Labs Bolt T-Shirt", 1,
-            "Sauce Labs Onesie", 2,
-            "Test.allTheThings() T-Shirt (Red)", 3,
-            "Sauce Labs Backpack", 4,
-            "Sauce Labs Fleece Jacket", 5
-    );
 
     public AddProductToCart(String productName) {
         this.productName = productName;
@@ -43,7 +32,7 @@ public class AddProductToCart implements Task {
     public <T extends Actor> void performAs(T actor) {
         actor.attemptsTo(
                 WaitUntil.the(ProductsPage.TITLE, isVisible())
-                        .forNoMoreThan(Duration.ofSeconds(10))
+                        .forNoMoreThan(Timeouts.LONG)
         );
 
         boolean alreadyInCart = !ProductsPage.removeButtonFor(productName)
@@ -59,14 +48,14 @@ public class AddProductToCart implements Task {
         actor.attemptsTo(
                 Scroll.to(ProductsPage.addToCartButtonFor(productName)),
                 WaitUntil.the(ProductsPage.addToCartButtonFor(productName), isClickable())
-                        .forNoMoreThan(Duration.ofSeconds(10)),
+                        .forNoMoreThan(Timeouts.LONG),
                 ClickSafely.on(ProductsPage.addToCartButtonFor(productName))
         );
 
-        boolean removed = waitFor(actor, Duration.ofSeconds(5),
+        boolean removed = Waits.until(actor, Timeouts.MEDIUM,
                 () -> !ProductsPage.removeButtonFor(productName).resolveAllFor(actor).isEmpty());
         if (!removed) {
-            boolean badgeUpdated = waitFor(actor, Duration.ofSeconds(10),
+            boolean badgeUpdated = Waits.until(actor, Timeouts.LONG,
                     () -> CartBadgeCount.value().answeredBy(actor) >= expectedBadge);
             if (!badgeUpdated) {
                 if (!forceAddToCart(actor, productName, expectedBadge)) {
@@ -76,42 +65,25 @@ public class AddProductToCart implements Task {
         }
     }
 
-    private boolean waitFor(Actor actor, Duration timeout, Supplier<Boolean> condition) {
-        WebDriverWait wait = new WebDriverWait(BrowseTheWeb.as(actor).getDriver(), timeout);
-        try {
-            wait.until(driver -> condition.get());
-            return true;
-        } catch (TimeoutException ex) {
-            return false;
-        }
-    }
-
     private boolean forceAddToCart(Actor actor, String name, int expectedBadge) {
-        Integer itemId = PRODUCT_IDS.get(name);
+        Integer itemId = ProductItem.idForName(name);
         if (itemId == null) {
             return false;
         }
-        JavascriptExecutor js = (JavascriptExecutor) BrowseTheWeb.as(actor).getDriver();
-        js.executeScript(
-                "var key='cart-contents';" +
-                        "var items = JSON.parse(window.localStorage.getItem(key) || '[]');" +
-                        "if (items.indexOf(arguments[0]) === -1) { items.push(arguments[0]); }" +
-                        "window.localStorage.setItem(key, JSON.stringify(items));",
-                itemId
-        );
-        js.executeScript("window.location.reload();");
-        boolean titleVisible = waitFor(actor, Duration.ofSeconds(10),
+        CartStorage.addItem(actor, itemId);
+        CartStorage.reload(actor);
+        boolean titleVisible = Waits.until(actor, Timeouts.LONG,
                 () -> !ProductsPage.TITLE.resolveAllFor(actor).isEmpty()
                         && ProductsPage.TITLE.resolveAllFor(actor).get(0).isVisible());
         if (!titleVisible) {
             return false;
         }
-        boolean removed = waitFor(actor, Duration.ofSeconds(5),
+        boolean removed = Waits.until(actor, Timeouts.MEDIUM,
                 () -> !ProductsPage.removeButtonFor(name).resolveAllFor(actor).isEmpty());
         if (removed) {
             return true;
         }
-        return waitFor(actor, Duration.ofSeconds(10),
+        return Waits.until(actor, Timeouts.LONG,
                 () -> CartBadgeCount.value().answeredBy(actor) >= expectedBadge);
     }
 }

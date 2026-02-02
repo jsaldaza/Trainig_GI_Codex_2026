@@ -1,5 +1,6 @@
 package co.com.training_GI.ui;
 
+import co.com.training_GI.support.MenuOption;
 import net.serenitybdd.screenplay.targets.Target;
 
 public class MenuPage {
@@ -8,27 +9,39 @@ public class MenuPage {
             .locatedBy("#react-burger-menu-btn");
 
     public static Target menuOption(String option) {
-        String normalized = option == null ? "" : option.trim().toLowerCase();
+        MenuOption known = MenuOption.from(option);
+        if (known != null) {
+            return menuOption(known);
+        }
+        return Target.the("menu option " + option)
+                .locatedBy("//nav//a[normalize-space()='{0}']")
+                .of(option);
+    }
+
+    public static Target menuOption(MenuOption option) {
+        if (option == null) {
+            return menuOption("");
+        }
         String id;
-        switch (normalized) {
-            case "all items":
+        switch (option) {
+            case ALL_ITEMS:
                 id = "inventory_sidebar_link";
                 break;
-            case "about":
+            case ABOUT:
                 id = "about_sidebar_link";
                 break;
-            case "logout":
+            case LOGOUT:
                 id = "logout_sidebar_link";
                 break;
-            case "reset app state":
+            case RESET_APP_STATE:
                 id = "reset_sidebar_link";
                 break;
             default:
-                return Target.the("menu option " + option)
+                return Target.the("menu option " + option.label())
                         .locatedBy("//nav//a[normalize-space()='{0}']")
-                        .of(option);
+                        .of(option.label());
         }
-        return Target.the("menu option " + option)
+        return Target.the("menu option " + option.label())
                 .locatedBy("#" + id);
     }
 }
