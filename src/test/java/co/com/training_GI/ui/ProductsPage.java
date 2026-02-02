@@ -20,7 +20,7 @@ public class ProductsPage {
         return Target.the("add to cart button for " + productName)
                 .locatedBy("//div[contains(@class,'inventory_item')]" +
                         "[.//div[contains(@class,'inventory_item_name') and normalize-space()='{0}']]" +
-                        "//button[contains(@class,'btn_inventory')]")
+                        "//button[contains(@class,'btn_inventory') and normalize-space()='Add to cart']")
                 .of(productName);
     }
 
@@ -34,7 +34,7 @@ public class ProductsPage {
 
     public static Target productLinkFor(String productName) {
         return Target.the("product link " + productName)
-                .locatedBy("//div[contains(@class,'inventory_item_name') and normalize-space()='{0}']")
+                .locatedBy("//a[.//div[contains(@class,'inventory_item_name') and normalize-space()='{0}']]")
                 .of(productName);
     }
 }

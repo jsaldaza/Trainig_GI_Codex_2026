@@ -8,8 +8,12 @@ import net.serenitybdd.screenplay.Tasks;
 import co.com.training_GI.interactions.ClickSafely;
 import net.serenitybdd.screenplay.actions.Open;
 import net.serenitybdd.screenplay.actions.Scroll;
+import net.serenitybdd.screenplay.abilities.BrowseTheWeb;
 import net.serenitybdd.screenplay.waits.WaitUntil;
 import java.time.Duration;
+import java.util.function.Supplier;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isVisible;
 import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isClickable;
@@ -29,17 +33,27 @@ public class OpenCart implements Task {
                 ClickSafely.on(ProductsPage.CART_ICON)
         );
 
+        boolean cartVisible = waitFor(actor, Duration.ofSeconds(5),
+                () -> !CartPage.CART_LIST.resolveAllFor(actor).isEmpty());
+        if (!cartVisible) {
+            actor.attemptsTo(
+                    Open.relativeUrl("/cart.html")
+            );
+            boolean cartVisibleAfterFallback = waitFor(actor, Duration.ofSeconds(10),
+                    () -> !CartPage.CART_LIST.resolveAllFor(actor).isEmpty());
+            if (!cartVisibleAfterFallback) {
+                throw new AssertionError("Cart page did not load");
+            }
+        }
+    }
+
+    private boolean waitFor(Actor actor, Duration timeout, Supplier<Boolean> condition) {
+        WebDriverWait wait = new WebDriverWait(BrowseTheWeb.as(actor).getDriver(), timeout);
         try {
-            actor.attemptsTo(
-                    WaitUntil.the(CartPage.CART_LIST, isVisible())
-                            .forNoMoreThan(Duration.ofSeconds(5))
-            );
-        } catch (RuntimeException ex) {
-            actor.attemptsTo(
-                    Open.relativeUrl("/cart.html"),
-                    WaitUntil.the(CartPage.CART_LIST, isVisible())
-                            .forNoMoreThan(Duration.ofSeconds(10))
-            );
+            wait.until(driver -> condition.get());
+            return true;
+        } catch (TimeoutException ex) {
+            return false;
         }
     }
 }

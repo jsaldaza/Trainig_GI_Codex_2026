@@ -3,6 +3,9 @@ package co.com.training_GI.questions;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.Question;
 import net.serenitybdd.screenplay.abilities.BrowseTheWeb;
+import java.time.Duration;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class CurrentUrlContains implements Question<Boolean> {
 
@@ -18,7 +21,15 @@ public class CurrentUrlContains implements Question<Boolean> {
 
     @Override
     public Boolean answeredBy(Actor actor) {
-        String currentUrl = BrowseTheWeb.as(actor).getDriver().getCurrentUrl();
-        return currentUrl != null && currentUrl.contains(expected);
+        WebDriverWait wait = new WebDriverWait(BrowseTheWeb.as(actor).getDriver(), Duration.ofSeconds(10));
+        try {
+            wait.until(driver -> {
+                String currentUrl = driver.getCurrentUrl();
+                return currentUrl != null && currentUrl.contains(expected);
+            });
+            return true;
+        } catch (TimeoutException ex) {
+            return false;
+        }
     }
 }
