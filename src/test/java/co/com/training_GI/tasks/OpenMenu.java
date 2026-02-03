@@ -7,7 +7,6 @@ import co.com.training_GI.ui.MenuPage;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.Task;
 import net.serenitybdd.screenplay.Tasks;
-import net.serenitybdd.screenplay.actions.JavaScriptClick;
 
 import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isClickable;
 
@@ -28,7 +27,7 @@ public class OpenMenu implements Task {
         boolean opened = Waits.until(actor, Timeouts.QUICK,
                 () -> !MenuPage.menuOption("All Items").resolveAllFor(actor).isEmpty());
         if (!opened) {
-            JavaScriptClick.on(MenuPage.HAMBURGER_BUTTON).performAs(actor);
+            ClickSafely.on(MenuPage.HAMBURGER_BUTTON).performAs(actor);
             Waits.until(actor, Timeouts.MENU,
                     () -> !MenuPage.menuOption("All Items").resolveAllFor(actor).isEmpty());
         }

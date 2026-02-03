@@ -29,4 +29,8 @@ public class SessionStore {
     public static void clear() {
         COOKIES.set(Collections.emptySet());
     }
+
+    public static void clearAll() {
+        COOKIES.remove();
+    }
 }

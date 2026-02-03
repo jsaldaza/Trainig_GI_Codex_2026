@@ -7,6 +7,6 @@ public class SuiteHooks {
 
     @AfterAll
     public static void cleanSession() {
-        SessionStore.clear();
+        SessionStore.clearAll();
     }
 }

@@ -6,9 +6,10 @@ import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.Task;
 import net.serenitybdd.screenplay.Tasks;
 import co.com.training_GI.interactions.ClickSafely;
-import co.com.training_GI.support.NavigationGuard;
+import co.com.training_GI.support.AppConfig;
 import co.com.training_GI.support.Routes;
 import co.com.training_GI.support.Timeouts;
+import co.com.training_GI.support.Waits;
 import net.serenitybdd.screenplay.actions.Open;
 import net.serenitybdd.screenplay.actions.Scroll;
 import net.serenitybdd.screenplay.waits.WaitUntil;
@@ -30,13 +31,20 @@ public class OpenCart implements Task {
                 ClickSafely.on(ProductsPage.CART_ICON)
         );
 
-        NavigationGuard.ensure(
-                actor,
-                Timeouts.MEDIUM,
-                Timeouts.LONG,
-                () -> !CartPage.CART_LIST.resolveAllFor(actor).isEmpty(),
-                fallbackActor -> fallbackActor.attemptsTo(Open.relativeUrl(Routes.CART)),
-                "Cart page did not load"
-        );
+        boolean opened = Waits.until(actor, Timeouts.LONG,
+                () -> !CartPage.CART_LIST.resolveAllFor(actor).isEmpty());
+        if (!opened) {
+            actor.attemptsTo(ClickSafely.on(ProductsPage.CART_ICON));
+            opened = Waits.until(actor, Timeouts.MEDIUM,
+                    () -> !CartPage.CART_LIST.resolveAllFor(actor).isEmpty());
+        }
+        if (!opened && AppConfig.navigationFallback()) {
+            actor.attemptsTo(Open.relativeUrl(Routes.CART));
+            opened = Waits.until(actor, Timeouts.LONG,
+                    () -> !CartPage.CART_LIST.resolveAllFor(actor).isEmpty());
+        }
+        if (!opened) {
+            throw new AssertionError("Cart page did not load");
+        }
     }
 }

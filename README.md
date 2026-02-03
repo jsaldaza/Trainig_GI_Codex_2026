@@ -174,7 +174,51 @@ There are also environment profiles (dev/qa/stage):
 
 ---
 
-## 9) How to add new cases
+## 9) CI/CD quick commands (recommended)
+
+All tests + fresh report (forces rerun):
+```
+.\gradlew.bat clean testAllAggregate --rerun-tasks
+```
+
+Smoke + report (fast validation):
+```
+.\gradlew.bat clean testSmokeAggregate --rerun-tasks
+```
+
+Run on a specific browser and environment:
+```
+.\gradlew.bat clean testAllAggregate --rerun-tasks -Dwebdriver.driver=edge -Denvironment=qa
+```
+
+Add report metadata (build/commit):
+```
+.\gradlew.bat clean testAllAggregate --rerun-tasks -Dreport.customfields.Build=123 -Dreport.customfields.Commit=abc1234
+```
+
+Notes for CI:
+- Keep `app.session.reuse=false` (default) to avoid shared-state issues.
+- If you want strict UI-only navigation, set `-Dapp.navigation.fallback=false` (default is true for stability).
+
+---
+
+## 10) Parallel execution (optional)
+
+Serenity can run tests in parallel. Use this only after you are sure your tests are isolated.
+
+Enable parallel execution (example):
+```
+.\gradlew.bat clean test --rerun-tasks -Dserenity.parallel.threads=2 -Dserenity.concurrent.threads=2
+```
+
+Notes:
+- Start with 2 threads and increase gradually.
+- Keep `app.session.reuse=false` to avoid shared state.
+- If you see flakiness, reduce threads or disable parallelism.
+
+---
+
+## 11) How to add new cases
 
 ### A) Add a new product to data set
 In `src/test/resources/features/products/products.feature`  
@@ -191,7 +235,7 @@ Add a new row:
 
 ---
 
-## 10) Golden rules for beginners
+## 12) Golden rules for beginners
 
 - **Do not use sleeps**; use WaitUntil.
 - **Create reusable Tasks** (think about reuse).
@@ -200,7 +244,7 @@ Add a new row:
 
 ---
 
-## 11) How to study this project as Manual QA
+## 13) How to study this project as Manual QA
 
 Recommended learning path:
 
@@ -213,7 +257,7 @@ This flow teaches automation in a natural way.
 
 ---
 
-## 12) Tutor tips
+## 14) Tutor tips
 
 - If something fails, open the Serenity report.
 - Think in **user actions** and **clear validations**.

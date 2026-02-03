@@ -12,4 +12,8 @@ public class AppConfig {
     public static boolean sessionReuse() {
         return Boolean.parseBoolean(Config.get("app.session.reuse", "false"));
     }
+
+    public static boolean navigationFallback() {
+        return Boolean.parseBoolean(Config.get("app.navigation.fallback", "false"));
+    }
 }

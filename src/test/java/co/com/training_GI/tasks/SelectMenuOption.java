@@ -4,6 +4,7 @@ import co.com.training_GI.ui.MenuPage;
 import co.com.training_GI.ui.LoginPage;
 import co.com.training_GI.ui.ProductsPage;
 import co.com.training_GI.interactions.ClickSafely;
+import co.com.training_GI.support.AppConfig;
 import co.com.training_GI.support.CartStorage;
 import co.com.training_GI.support.MenuOption;
 import co.com.training_GI.support.Routes;
@@ -70,7 +71,15 @@ public class SelectMenuOption implements Task {
             }
         }
 
-        fallbackToDirectNavigation(actor, option);
+        if (retryMenuSelection(actor)) {
+            return;
+        }
+
+        if (AppConfig.navigationFallback()) {
+            fallbackToDirectNavigation(actor, option);
+            return;
+        }
+        throw new AssertionError("Menu option did not navigate: " + option);
     }
 
     private void fallbackToDirectNavigation(Actor actor, String option) {
@@ -151,5 +160,25 @@ public class SelectMenuOption implements Task {
 
     private net.serenitybdd.screenplay.targets.Target menuTarget() {
         return menuOption != null ? MenuPage.menuOption(menuOption) : MenuPage.menuOption(option);
+    }
+
+    private boolean retryMenuSelection(Actor actor) {
+        try {
+            actor.attemptsTo(ClickSafely.on(MenuPage.HAMBURGER_BUTTON));
+        } catch (RuntimeException ignored) {
+            // Continue to retry click when menu fails to open.
+        }
+        boolean visible = Waits.until(actor, Timeouts.MEDIUM,
+                () -> menuTarget().resolveAllFor(actor).stream()
+                        .anyMatch(WebElementFacade::isVisible));
+        if (!visible) {
+            return false;
+        }
+        try {
+            actor.attemptsTo(ClickSafely.on(menuTarget()));
+        } catch (RuntimeException ignored) {
+            return false;
+        }
+        return confirmNavigation(actor, option);
     }
 }
